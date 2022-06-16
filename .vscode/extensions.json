@@ -2,5 +2,6 @@
   "recommendations": [
     "4ops.terraform",
     "hashicorp.terraform",
+    "hashicorp.hcl",
   ]
 }
