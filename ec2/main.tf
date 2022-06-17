@@ -33,7 +33,7 @@ resource "aws_vpc" "this" {
   cidr_block = var.vpc_cidr_block
 
   tags = {
-    Name = "sample-ec2-vpc"
+    Name = "${var.name_prefix}-vpc"
   }
 }
 
@@ -41,8 +41,10 @@ resource "aws_subnet" "this" {
   vpc_id     = aws_vpc.this.id
   cidr_block = var.subnet_cidr_block
 
+  availability_zone = "ap-northeast-1a"
+
   tags = {
-    Name = "sample-ec2-subnet"
+    Name = "${var.name_prefix}-subnet"
   }
 }
 
@@ -52,7 +54,7 @@ resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
 
   tags = {
-    Name = "sample-ec2-internet-gateway"
+    Name = "${var.name_prefix}-internet-gateway"
   }
 }
 
@@ -103,19 +105,24 @@ resource "aws_instance" "this" {
     aws_security_group.this.id,
   ]
 
+  tags = {
+    Name = "${var.name_prefix}-ec2"
+  }
+
   depends_on = [aws_internet_gateway.this]
 }
 
 # Key Pair
 resource "aws_key_pair" "this" {
-  key_name   = "sample_ec2_ssh_key"
+  key_name   = "${var.name_prefix}-ssh-key"
   public_key = file("~/.ssh/id_rsa.pub")
 }
 
 # Security Group
 resource "aws_security_group" "this" {
-  vpc_id = aws_vpc.this.id
-  name   = "sample_ec2_security_group"
+  name        = "${var.name_prefix}-security-group"
+  description = "security group"
+  vpc_id      = aws_vpc.this.id
 }
 
 resource "aws_security_group_rule" "rule_icmp" {

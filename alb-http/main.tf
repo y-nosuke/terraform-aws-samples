@@ -18,6 +18,7 @@ terraform {
 # Variables
 #####################################################
 locals {
+  hostname  = "www"
   user_data = <<USERDATA
 #!/bin/bash
 sudo apt update
@@ -34,7 +35,7 @@ resource "aws_vpc" "this" {
   cidr_block = var.vpc_cidr_block
 
   tags = {
-    Name = "sample-alb-http-vpc"
+    Name = "${var.name_prefix}-vpc"
   }
 }
 
@@ -45,7 +46,7 @@ resource "aws_subnet" "this_1a" {
   availability_zone = "ap-northeast-1a"
 
   tags = {
-    Name = "sample-alb-http-subnet-1a"
+    Name = "${var.name_prefix}-subnet-1a"
   }
 }
 
@@ -56,7 +57,7 @@ resource "aws_subnet" "this_1c" {
   availability_zone = "ap-northeast-1c"
 
   tags = {
-    Name = "sample-alb-http-subnet-1c"
+    Name = "${var.name_prefix}-subnet-1c"
   }
 }
 
@@ -66,7 +67,7 @@ resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
 
   tags = {
-    Name = "sample-alb-http-internet-gateway"
+    Name = "${var.name_prefix}-internet-gateway"
   }
 }
 
@@ -122,18 +123,22 @@ resource "aws_instance" "this" {
     aws_security_group.this.id,
   ]
 
+  tags = {
+    Name = "${var.name_prefix}-ec2"
+  }
+
   depends_on = [aws_internet_gateway.this]
 }
 
 # Key Pair
 resource "aws_key_pair" "this" {
-  key_name   = "sample-alb-http-ssh-key"
+  key_name   = "${var.name_prefix}-ssh-key"
   public_key = file("~/.ssh/id_rsa.pub")
 }
 
 # ALB
 resource "aws_lb" "this" {
-  name               = "sample-alb-http-alb"
+  name               = "${var.name_prefix}-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
@@ -169,13 +174,13 @@ resource "aws_lb_listener_rule" "this" {
 
   condition {
     host_header {
-      values = ["www.aws.physicist00.jp"]
+      values = ["${local.hostname}.${var.domain_name}"]
     }
   }
 }
 
 resource "aws_lb_target_group" "this" {
-  name     = "sample-alb-http-target-group"
+  name     = "${var.name_prefix}-target-group"
   port     = "80"
   protocol = "HTTP"
   vpc_id   = aws_vpc.this.id
@@ -195,8 +200,8 @@ resource "aws_lb_target_group_attachment" "this" {
 
 # Security Group
 resource "aws_security_group" "this" {
-  name        = "sample-alb-http-security-group"
-  description = "sample alb security group"
+  name        = "${var.name_prefix}-security-group"
+  description = "security group"
   vpc_id      = aws_vpc.this.id
 }
 
@@ -247,8 +252,8 @@ resource "aws_security_group_rule" "out_all" {
 }
 
 resource "aws_security_group" "alb" {
-  name        = "sample-alb-http-alb-security-group"
-  description = "sample alb http alb security group"
+  name        = "${var.name_prefix}-alb-security-group"
+  description = "alb security group"
   vpc_id      = aws_vpc.this.id
 }
 
@@ -275,13 +280,13 @@ resource "aws_security_group_rule" "alb_out_all" {
 
 # Route53
 data "aws_route53_zone" "this" {
-  name         = "aws.physicist00.jp"
+  name         = var.domain_name
   private_zone = false
 }
 
 resource "aws_route53_record" "this" {
   zone_id = data.aws_route53_zone.this.zone_id
-  name    = "www"
+  name    = local.hostname
   type    = "A"
 
   alias {

@@ -23,9 +23,9 @@ terraform {
 #####################################################
 # Route53
 resource "aws_route53_zone" "this" {
-  name = "aws.physicist00.jp"
+  name = var.domain_name
 
   tags = {
-    Name = "sample-route53-hostzone"
+    Name = "${var.name_prefix}-hostzone"
   }
 }
