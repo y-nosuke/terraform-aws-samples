@@ -76,6 +76,7 @@ resource "aws_cloud9_environment_ec2" "this" {
   description   = "cloud9"
   owner_arn     = data.aws_iam_user.administrator.arn
   subnet_id     = aws_subnet.this.id
+  image_id      = "amazonlinux-2-x86_64"
 }
 
 resource "aws_cloud9_environment_membership" "this" {

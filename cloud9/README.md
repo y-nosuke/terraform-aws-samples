@@ -4,7 +4,7 @@
 
 ### .direnv の作成
 
-``` sh
+```sh
 direnv edit .
 
 export AWS_ACCOUNT_ID=(Account ID)
@@ -36,3 +36,7 @@ terraform destroy
 - [Terraform Registry Resource: aws_cloud9_environment_membership](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloud9_environment_membership)
 
 - [github dogharasu/terraform-cloud9-ssh-env](https://github.com/dogharasu/terraform-cloud9-ssh-env)
+
+- [AWS Cloud9 のドキュメント](https://docs.aws.amazon.com/ja_jp/cloud9/index.html)
+  - [ユーザーガイド](https://docs.aws.amazon.com/ja_jp/cloud9/latest/user-guide/index.html)
+    - [AWS Cloud9 のチュートリアルとサンプル](https://docs.aws.amazon.com/ja_jp/cloud9/latest/user-guide/tutorials.html)
